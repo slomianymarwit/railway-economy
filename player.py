@@ -4,7 +4,6 @@ class Player():
     def __init__(self, name, money):
         self.name = name
         self.money = money
-        self.shares = {}
 
     def buy_shares(self, company:Company, quantity):
         total_price = company.shares_price * quantity
@@ -14,10 +13,13 @@ class Player():
         result = company.sell_shares(self, quantity)
         if result:
             self.money -= total_price
-            self.shares[company.name] = self.shares.get(company.name, 0) + quantity
         return result
     
     def sell_shares(self, company:Company, quantity):
         total_price = company.shares_price * quantity
         pass
         # Na ta chwile nie ma nikogo kto by te akcje kupil - moze trzeba dodac market albo zlecenia kupna od "malych graczy/innych spolek"
+
+    def shares_in(self, company:Company):
+        shares_quantity = company.shareholders.get(self.name, 0)
+        return shares_quantity

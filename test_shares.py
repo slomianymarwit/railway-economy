@@ -11,7 +11,7 @@ def test_player_can_buy_shares():
     result = player.buy_shares(company, shares_quantity)
 
     assert player.money == starting_money - starting_shares_price * shares_quantity
-    assert player.shares[company.name] == shares_quantity
+    assert player.shares_in(company) == shares_quantity
     assert company.shares == company.all_shares - shares_quantity
     assert company.money == starting_shares_price * shares_quantity
     assert result is True
@@ -26,7 +26,7 @@ def test_player_cannot_buy_shares_without_enough_money():
     result = player.buy_shares(company, shares_quantity)
 
     assert player.money == starting_money
-    assert player.shares == {}
+    assert player.shares_in(company) == 0
     assert company.shares == company.all_shares
     assert company.money == 0
     assert result is False
@@ -40,7 +40,7 @@ def test_player_cannot_buy_more_shares_than_company_have():
     result = player.buy_shares(company, shares_quantity)
 
     assert player.money == starting_money
-    assert player.shares == {}
+    assert player.shares_in(company) == 0
     assert company.shares == company.all_shares
     assert company.money == 0
     assert result is False
@@ -54,7 +54,7 @@ def test_player_cannot_buy_negative_number_of_shares():
     result = player.buy_shares(company, shares_quantity)
 
     assert player.money == starting_money
-    assert player.shares == {}
+    assert player.shares_in(company) == 0
     assert company.shares == company.all_shares
     assert company.money == 0
     assert result is False
@@ -68,7 +68,7 @@ def test_player_cannot_buy_zero_shares():
     result = player.buy_shares(company, shares_quantity)
 
     assert player.money == starting_money
-    assert player.shares == {}
+    assert player.shares_in(company) == 0
     assert company.shares == company.all_shares
     assert company.money == 0
     assert result is False
@@ -88,16 +88,26 @@ def test_company_changing_president():
 
     assert company.president == player1.name
 
-def test_company_float():
+def test_company_floats_after_50_percent_of_shares_are_sold():
     starting_money = 500000
-    player1 = Player("Test Player1", starting_money)
+    player = Player("Test Player", starting_money)
     company = Company("Test Company")
 
-    player1.buy_shares(company, 499)
-    assert company.president == None
+    player.buy_shares(company, 499)
+    assert company.president is None
 
-    player1.buy_shares(company, 1)
-    assert company.president == player1.name
+    player.buy_shares(company, 1)
+    assert company.president == player.name
 
-    player1.buy_shares(company, 1)
-    assert company.president == player1.name
+    player.buy_shares(company, 1)
+    assert company.president == player.name
+
+def test_player_can_check_number_of_shares_owned_in_company():
+    starting_money = 500000
+    player = Player("Test Player", starting_money)
+    company = Company("Test Company")
+
+    assert player.shares_in(company) == 0
+
+    player.buy_shares(company, 100)
+    assert player.shares_in(company) == 100
