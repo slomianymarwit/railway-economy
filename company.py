@@ -9,6 +9,8 @@ class Company():
         self.president = None
 
     def sell_shares(self, buyer, quantity):
+        if quantity <= 0:
+            return False
         shares_left = self.shares - quantity
         if shares_left >= 0:
             self.shares = shares_left
@@ -16,7 +18,7 @@ class Company():
             self.shareholders[buyer.name] = self.shareholders.get(buyer.name, 0) + quantity
             
             top_shareholder = max(self.shareholders, key=self.shareholders.get) #Do rozwiazania case gdzie jest remis w ilosci akcji
-            if self.shares < self.all_shares / 2:
+            if self.shares <= self.all_shares / 2:
                 self.president = top_shareholder
             return True
         else:
