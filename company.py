@@ -7,6 +7,7 @@ class Company():
         self.shares_price = 100
         self.shareholders = {}
         self.president = None
+        self.is_floated = False
 
     def sell_shares(self, buyer, quantity):
         if quantity <= 0:
@@ -17,9 +18,22 @@ class Company():
             self.money += self.shares_price * quantity
             self.shareholders[buyer.name] = self.shareholders.get(buyer.name, 0) + quantity
             
-            top_shareholder = max(self.shareholders, key=self.shareholders.get) #Do rozwiazania case gdzie jest remis w ilosci akcji
-            if self.shares <= self.all_shares / 2:
-                self.president = top_shareholder
+            self._update_company_after_share_sale()
             return True
         else:
             return False
+        
+    def _update_company_after_share_sale(self):
+        highest_quantity = max(self.shareholders.values())
+        top_shareholders = [shareholder for shareholder, quantity in self.shareholders.items() if quantity == highest_quantity]
+        if self.shares <= self.all_shares / 2:
+            self.is_floated = True
+
+            if len(top_shareholders) == 1:
+                self.president = top_shareholders[0]
+            elif self.shares == self.all_shares / 2:
+                self.president = None
+            elif self.president in top_shareholders:
+                pass
+            else:
+                self.president = top_shareholders[0]

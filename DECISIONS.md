@@ -12,6 +12,7 @@ Game will not force a delay in operations of comapnies.
 ### Consequences
 Game will be fully playable from the begining and will be generating data.
 
+
 ## New companies activation
 
 ### Decision
@@ -22,6 +23,28 @@ More realistic source of money and no need to wait for company to sell all or al
 
 ### Consequences
 Company will start with real money from real investors, not with cash granted by bank for some reason. Company ovned even 50% of their shares will not decided by themself, its just shares to sell in future, but ownership will be move to new president.
+
+
+## Company presidency and tied shareholdings
+
+### Decision
+The president of a floated company is determined by share ownership.
+If one shareholder owns more shares than every other shareholder, that player becomes the president.
+If multiple shareholders are tied for the largest number of shares and the current president is one of them, the current president keeps control of the company. Therefore, another shareholder must own strictly more shares than the current president to take control.
+If the company does not yet have a president and multiple shareholders are tied for the largest number of shares, the shareholder who became a shareholder of the company first becomes the president.
+
+### Reason
+A tie should not automatically remove an existing president from control. Requiring another shareholder to exceed the president's position makes company takeovers deliberate rather than accidental.
+When a newly floated company has no president and its largest shareholders are tied, using the earliest shareholder provides a deterministic way to establish control without requiring an additional arbitrary decision.
+
+### Alternatives considered
+Leaving the company without a president until one shareholder obtains a larger position.
+Giving the presidency to the shareholder who first reached the current highest number of shares.
+
+### Consequences
+The current president remains protected during a tie but can lose control as soon as another shareholder owns more shares.
+The order in which players first become shareholders can matter when a company receives its first president.
+Share ownership remains the source of company control; presidency does not represent ownership of the company itself.
 
 
 ## Domain invariants
