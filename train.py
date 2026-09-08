@@ -8,6 +8,8 @@ class Train():
         
         self.cars = cars
         self.owned_by = None
+        self.stops = []
+        self.current_city = None
         self.distance_on_connection = 0
         self.route = None
         self.current_connection_index = None
@@ -29,6 +31,9 @@ class Train():
         if self.route is None:
             return False
 
+        if self.current_city in self.stops:
+            return False
+
         if self.current_connection_index == len(self.route) - 1 and self.route[self.current_connection_index].distance == self.distance_on_connection:
             return False
 
@@ -45,9 +50,16 @@ class Train():
                 return True
             else:
                 if self.current_connection_index < len(self.route) - 1:
+                    city = self.route[self.current_connection_index].end
                     self.current_connection_index += 1
                     self.distance_on_connection = 0
+                    if city in self.stops:
+                        self.current_city = city
+                        return True
+                    else:
+                        continue
                 else:
+                    self.current_city = self.route[self.current_connection_index].end
                     return True
         return True
 
@@ -65,3 +77,6 @@ class Train():
         self.current_connection_index = 0
         self.distance_on_connection = 0
         return True
+
+    def depart(self):
+        self.current_city = None
