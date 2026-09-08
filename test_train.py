@@ -235,3 +235,57 @@ def test_train_ends_exactly_at_the_end_of_the_connection_and_it_is_last_one():
 
     result = train.move()
     assert result is False
+
+def test_the_route_is_not_continuous():
+    locomotive = Locomotive("TierI", 25, 2)
+    train = Train("First Train", locomotive, 1)
+    chicago = City("Chicago")
+    detroit = City("Detroit")
+    cleveland = City("Cleveland")
+    boston = City("Boston")
+    connection1 = Connection(chicago, detroit, 25)
+    connection2 = Connection(boston, cleveland, 10)
+
+    result = train.assign_route([connection1, connection2])
+
+    assert train.route is None
+    assert train.distance_on_connection == 0
+    assert result is False
+
+def test_the_route_is_continuous():
+    locomotive = Locomotive("TierI", 25, 2)
+    train = Train("First Train", locomotive, 1)
+    chicago = City("Chicago")
+    detroit = City("Detroit")
+    cleveland = City("Cleveland")
+    connection1 = Connection(chicago, detroit, 25)
+    connection2 = Connection(detroit, cleveland, 10)
+
+    result = train.assign_route([connection1, connection2])
+
+    assert train.route == [connection1, connection2]
+    assert train.distance_on_connection == 0
+    assert result is True
+
+def test_the_route_is_empty():
+    locomotive = Locomotive("TierI", 25, 2)
+    train = Train("First Train", locomotive, 1)
+
+    result = train.assign_route([])
+
+    assert train.route is None
+    assert train.distance_on_connection == 0
+    assert result is False
+
+def test_the_route_contain_only_one_connection():
+    locomotive = Locomotive("TierI", 25, 2)
+    train = Train("First Train", locomotive, 1)
+    chicago = City("Chicago")
+    detroit = City("Detroit")
+    connection1 = Connection(chicago, detroit, 25)
+
+    result = train.assign_route([connection1])
+
+    assert train.route == [connection1]
+    assert train.distance_on_connection == 0
+    assert result is True

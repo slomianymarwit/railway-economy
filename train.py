@@ -52,6 +52,16 @@ class Train():
         return True
 
     def assign_route(self, route):
+        if len(route) == 0:
+            return False
+        
+        for i in range(len(route) - 1):
+            end = route[i].end
+            start = route[i + 1].start
+            if end != start:
+                return False
+
         self.route = route
         self.current_connection_index = 0
         self.distance_on_connection = 0
+        return True
