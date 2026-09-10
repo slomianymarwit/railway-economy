@@ -386,3 +386,140 @@ def test_depart_clears_current_city():
     train.move()
 
     assert train.current_city is None
+
+def test_train_starts_with_empty_cargo():
+    locomotive = Locomotive("TierI", 25, 2)
+    train = Train("First Train", locomotive, 1)
+
+    assert train.cargo == {}
+
+def test_train_cannot_load_more_carloads_than_number_of_cars():
+    locomotive = Locomotive("TierI", 25, 2)
+    train = Train("First Train", locomotive, 1)
+
+    assert train.cargo <= train.cars
+
+def test_load_cargo_adds_carloads_to_train():
+    locomotive = Locomotive("TierI", 25, 2)
+    train = Train("First Train", locomotive, 2)
+
+    result = train.load_cargo("steel", 1)
+
+    assert train.cargo == {"steel": 1}
+    assert result is True
+
+def test_train_cannot_load_more_carloads_than_number_of_cars():
+    locomotive = Locomotive("TierI", 25, 2)
+    train = Train("First Train", locomotive, 2)
+
+    result = train.load_cargo("steel", 3)
+
+    assert train.cargo == {}
+    assert result is False
+
+def test_load_cargo_adds_to_existing_good_quantity():
+    locomotive = Locomotive("TierI", 25, 2)
+    train = Train("First Train", locomotive, 2)
+
+    train.load_cargo("steel", 1)
+    train.load_cargo("steel", 1)
+
+    assert train.cargo == {"steel": 2}
+
+def test_load_cargo_cannot_exceed_remaining_train_capacity():
+    locomotive = Locomotive("TierI", 25, 2)
+    train = Train("First Train", locomotive, 2)
+    train.cargo = {"steel": 2}
+
+    train.load_cargo("steel", 1)
+
+    assert train.cargo == {"steel": 2}
+
+def test_load_cargo_rejects_zero_or_negative_quantity():
+    locomotive = Locomotive("TierI", 25, 2)
+    train = Train("First Train", locomotive, 2)
+
+    result = train.load_cargo("steel", 0)
+
+    assert train.cargo == {}
+    assert result is False
+
+    result = train.load_cargo("steel", -1)
+
+    assert train.cargo == {}
+    assert result is False
+
+def test_load_cargo_accepts_quantity_equal_to_remaining_capacity():
+    locomotive = Locomotive("TierI", 25, 2)
+    train = Train("First Train", locomotive, 2)
+    train.cargo = {"steel": 1}
+
+    result = train.load_cargo("steel", 1)
+
+    assert train.cargo == {"steel": 2}
+    assert result is True
+
+def test_failed_load_cargo_does_not_change_existing_cargo():
+    locomotive = Locomotive("TierI", 25, 2)
+    train = Train("First Train", locomotive, 2)
+    train.cargo = {"steel": 1}
+
+    result = train.load_cargo("grain", 2)
+
+    assert train.cargo == {"steel": 1}
+    assert result is False
+
+def test_unload_cargo_reduces_carload_quantity():
+    locomotive = Locomotive("TierI", 25, 2)
+    train = Train("First Train", locomotive, 2)
+    train.cargo = {"steel": 2}
+
+    result = train.unload_cargo("steel", 1)
+
+    assert train.cargo == {"steel": 1}
+    assert result is True
+
+def test_unload_cargo_removes_good_when_quantity_reaches_zero():
+    locomotive = Locomotive("TierI", 25, 2)
+    train = Train("First Train", locomotive, 2)
+    train.cargo = {"steel": 1}
+
+    result = train.unload_cargo("steel", 1)
+
+    assert train.cargo == {}
+    assert result is True
+
+def test_unload_cargo_cannot_remove_more_than_train_carries():
+    locomotive = Locomotive("TierI", 25, 2)
+    train = Train("First Train", locomotive, 2)
+    train.cargo = {"steel": 1}
+
+    result = train.unload_cargo("steel", 2)
+
+    assert train.cargo == {"steel": 1}
+    assert result is False
+
+def test_unload_cargo_rejects_zero_or_negative_quantity():
+    locomotive = Locomotive("TierI", 25, 2)
+    train = Train("First Train", locomotive, 2)
+    train.cargo = {"steel": 1}
+
+    result = train.unload_cargo("steel", 0)
+
+    assert train.cargo == {"steel": 1}
+    assert result is False
+
+    result = train.unload_cargo("steel", -1)
+    
+    assert train.cargo == {"steel": 1}
+    assert result is False
+
+def test_unload_cargo_returns_false_when_good_is_not_on_train():
+    locomotive = Locomotive("TierI", 25, 2)
+    train = Train("First Train", locomotive, 2)
+    train.cargo = {"steel": 1}
+
+    result = train.unload_cargo("grain", 1)
+
+    assert train.cargo == {"steel": 1}
+    assert result is False

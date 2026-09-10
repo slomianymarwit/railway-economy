@@ -55,3 +55,39 @@ Share ownership remains the source of company control; presidency does not repre
 - Company must have enough shares available.
 - Failed transaction must not change state.
 - Successful transaction must update both player and company consistently.
+
+
+## Cargo units and train cargo representation
+
+### Decision
+Goods transported by trains are measured in carloads.
+One train car can carry exactly one carload of one type of good. A carload is an abstract transport unit and does not represent a fixed weight or volume across different goods.
+Train cargo is represented as a dictionary where the key identifies the good and the value represents the number of carloads currently transported.
+
+Example:
+{
+    "steel": 3,
+    "grain": 2
+}
+
+A train carrying this cargo uses five cars.
+
+### Reason
+Different goods have very different physical properties, so using a universal unit such as tons or cubic meters would require additional modeling of weight, volume, wagon types, and capacities.
+These details would add complexity without significantly improving the economic decisions that are central to the game.
+Using carloads keeps transport capacity simple while still allowing meaningful decisions about which goods should be transported and where.
+A dictionary is used instead of representing every individual car in a list because the game primarily needs aggregate information about how many carloads of each good are being transported.
+
+### Alternatives considered
+Measuring all goods by weight, such as tons.
+Measuring goods by volume.
+Giving different goods different wagon capacities.
+Representing every train car individually in a list.
+Creating separate wagon classes with different capacities.
+
+### Consequences
+Train capacity can be calculated directly from the number of cars.
+One car always provides one cargo slot regardless of the transported good.
+Different goods can still have different prices, production rates, consumption rates, and economic value per carload.
+Wagon capacity upgrades are not currently planned. Improvements to train capacity should primarily come from locomotives capable of pulling more cars.
+Physical differences between goods are intentionally abstracted away in favor of economic gameplay and simpler data analysis.

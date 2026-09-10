@@ -7,6 +7,7 @@ class Train():
             raise ValueError("Invalid number of cars")
         
         self.cars = cars
+        self.cargo = {}
         self.owned_by = None
         self.stops = []
         self.current_city = None
@@ -80,3 +81,35 @@ class Train():
 
     def depart(self):
         self.current_city = None
+
+    def load_cargo(self, cargo, quantity):
+        occupied_capacity = sum(self.cargo.values())
+        remaining_capacity = self.cars - occupied_capacity
+
+        if quantity <= 0:
+            return False
+
+        if quantity > remaining_capacity:
+            return False
+
+        if cargo not in self.cargo:
+            self.cargo[cargo] = quantity
+            return True
+        else:
+            self.cargo[cargo] += quantity
+            return True
+
+    def unload_cargo(self, cargo, quantity):
+        if cargo not in self.cargo:
+            return False
+
+        if quantity <= 0:
+            return False
+
+        if quantity > self.cargo[cargo]:
+            return False
+
+        self.cargo[cargo] -= quantity
+        if self.cargo[cargo] == 0:
+            del self.cargo[cargo]
+        return True
