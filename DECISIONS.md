@@ -91,3 +91,27 @@ One car always provides one cargo slot regardless of the transported good.
 Different goods can still have different prices, production rates, consumption rates, and economic value per carload.
 Wagon capacity upgrades are not currently planned. Improvements to train capacity should primarily come from locomotives capable of pulling more cars.
 Physical differences between goods are intentionally abstracted away in favor of economic gameplay and simpler data analysis.
+
+
+## Cargo ownership and transfers
+
+### Decision
+Trains and cities manage their own cargo-related state independently.
+A train stores the goods it currently transports in its cargo dictionary.
+A city stores locally available goods in its inventory dictionary.
+Methods belonging to Train modify train cargo only, while methods belonging to City modify city inventory only.
+Transfers between a city and a train will be coordinated by a higher-level game action or engine rather than by either entity directly.
+
+### Reason
+Train movement and cargo capacity are responsibilities of the train, while production, consumption, and local inventory belong to the city economy.
+Keeping these responsibilities separate prevents Train and City from becoming tightly coupled and makes their behavior easier to test independently.
+A higher-level transaction can later ensure that both sides of a cargo transfer are updated consistently.
+
+### Consequences
+Loading cargo from a city will eventually consist of two coordinated state changes:
+goods are removed from the city's inventory;
+the same number of carloads is added to the train's cargo.
+
+Unloading performs the opposite transfer.
+Failed transfers should leave both entities unchanged.
+This structure also leaves room for future rules such as prices, payments, loading costs, availability checks, and transaction logging without placing those responsibilities inside Train or City.
