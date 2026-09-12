@@ -61,15 +61,14 @@ Share ownership remains the source of company control; presidency does not repre
 
 ### Decision
 Goods transported by trains are measured in carloads.
+A Good is identified by its name, so two objects with the same name represent the same type of good, the name of the Good is immutable.
 One train car can carry exactly one carload of one type of good. A carload is an abstract transport unit and does not represent a fixed weight or volume across different goods.
 Train cargo is represented as a dictionary where the key identifies the good and the value represents the number of carloads currently transported.
-
 Example:
 {
     "steel": 3,
     "grain": 2
 }
-
 A train carrying this cargo uses five cars.
 
 ### Reason
@@ -115,3 +114,19 @@ the same number of carloads is added to the train's cargo.
 Unloading performs the opposite transfer.
 Failed transfers should leave both entities unchanged.
 This structure also leaves room for future rules such as prices, payments, loading costs, availability checks, and transaction logging without placing those responsibilities inside Train or City.
+
+
+## Goods as domain objects
+
+### Decision
+Goods are represented by dedicated Good objects rather than plain strings.
+Inventories and train cargo use Good objects as identifiers for transported and stored goods.
+
+### Reason
+Strings are sufficient for early cargo prototypes, but goods will later need their own economic properties such as prices, production relationships, consumption behavior, and categories.
+Representing goods as domain objects gives those properties a natural place to live and avoids spreading good-specific logic across unrelated parts of the codebase.
+
+### Consequences
+City inventories and train cargo will use Good objects as dictionary keys.
+Cargo transfer logic will operate on goods as domain objects.
+The initial Good model should remain minimal and only gain additional attributes when new economic mechanics require them.

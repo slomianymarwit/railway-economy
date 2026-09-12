@@ -2,6 +2,7 @@ from locomotive import Locomotive
 from train import Train
 from connection import Connection
 from city import City
+from good import Good
 import pytest
 
 def test_create_a_train():
@@ -468,6 +469,16 @@ def test_failed_load_cargo_does_not_change_existing_cargo():
 
     assert train.cargo == {"steel": 1}
     assert result is False
+
+def test_train_load_cargo_accepts_good_object():
+    locomotive = Locomotive("TierI", 25, 2)
+    train = Train("First Train", locomotive, 2)
+    steel = Good("steel")
+
+    result = train.load_cargo(steel, 1)
+
+    assert train.cargo[steel] == 1
+    assert result is True
 
 def test_unload_cargo_reduces_carload_quantity():
     locomotive = Locomotive("TierI", 25, 2)

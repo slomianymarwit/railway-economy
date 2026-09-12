@@ -1,4 +1,5 @@
 from city import City
+from good import Good
 
 def test_city_starts_with_empty_inventory():
     detroit = City("Detroit")
@@ -85,3 +86,12 @@ def test_remove_goods_rejects_zero_or_negative_quantity():
 
     assert detroit.inventory == {"steel": 1}
     assert result is False
+
+def test_city_add_goods_accepts_good_object():
+    detroit = City("Detroit")
+    steel = Good("steel")
+
+    result = detroit.add_goods(steel, 1)
+
+    assert detroit.inventory[steel] == 1
+    assert result is True
