@@ -473,7 +473,7 @@ def test_failed_load_cargo_does_not_change_existing_cargo():
 def test_train_load_cargo_accepts_good_object():
     locomotive = Locomotive("TierI", 25, 2)
     train = Train("First Train", locomotive, 2)
-    steel = Good("steel")
+    steel = Good("steel", 100)
 
     result = train.load_cargo(steel, 1)
 

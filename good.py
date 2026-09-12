@@ -1,6 +1,10 @@
 class Good():
-    def __init__(self, name):
+    def __init__(self, name, base_price):
         self._name = name
+
+        if base_price <= 0:
+            raise ValueError("Invalid price of good")
+        self.base_price = base_price
 
     @property
     def name(self):
