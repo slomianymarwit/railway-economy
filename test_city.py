@@ -197,13 +197,13 @@ def test_get_days_of_supply_returns_zero_when_consumed_good_has_no_inventory():
 
     assert result == 0
 
-def test_get_supply_state_returns_none_when_good_is_not_consumed():
+def test_get_supply_state_returns_heavy_surplus_when_inventory_exists_without_consumption():
     detroit = City("Detroit")
     steel = Good("steel", 100)
     detroit.inventory = {steel: 2}
 
     result = detroit.get_supply_state(steel)
-    assert result == None
+    assert result == "heavy surplus"
 
 def test_get_supply_state_returns_extreme_shortage_for_one_day_or_less():
     detroit = City("Detroit")
@@ -384,7 +384,7 @@ def test_get_average_supply_score_returns_none_when_history_has_no_active_turns(
 
     result = detroit.get_average_supply_score(steel)
 
-    assert result == None
+    assert result is None
 
 def test_get_average_supply_score_returns_none_when_good_has_no_history():
     detroit = City("Detroit")
@@ -392,7 +392,7 @@ def test_get_average_supply_score_returns_none_when_good_has_no_history():
 
     result = detroit.get_average_supply_score(steel)
 
-    assert result == None
+    assert result is None
 
 def test_historical_supply_multiplier_interpolates_fractional_score():
     detroit = City("Detroit")
@@ -411,3 +411,87 @@ def test_historical_supply_multiplier_returns_neutral_when_no_active_history():
     result = detroit.get_historical_supply_multiplier(steel)
 
     assert result == 1
+
+def test_get_local_price_combines_base_price_and_supply_multipliers():
+    detroit = City("Detroit")
+    steel = Good("steel", 100)
+    detroit.inventory = {steel: 4}
+    detroit.daily_consumption = {steel: 2}
+    detroit.supply_history = {steel: [3, 1, 3, 1]}
+
+    result = detroit.get_local_price(steel)
+
+    assert result == 136.50
+
+def test_get_local_price_rounds_to_two_decimal_places():
+    detroit = City("Detroit")
+    steel = Good("steel", 99)
+    detroit.inventory = {steel: 2}
+    detroit.daily_consumption = {steel: 1}
+    detroit.supply_history = {steel: [5, 6]}
+
+    result = detroit.get_local_price(steel)
+
+    assert result == 119.05
+
+def test_get_supply_multiplier_returns_neutral_for_inactive_market():
+    detroit = City("Detroit")
+    steel = Good("steel", 99)
+
+    result = detroit.get_supply_multiplier(steel)
+
+    assert result == 1
+
+def test_get_local_price_returns_base_price_for_inactive_market_without_history():
+    detroit = City("Detroit")
+    steel = Good("steel", 100)
+
+    result = detroit.get_local_price(steel)
+
+    assert result == 100
+
+def test_city_starts_with_empty_market_prices():
+    detroit = City("Detroit")
+
+    assert detroit.market_prices == {}
+
+def test_update_market_prices_stores_price_for_each_good():
+    detroit = City("Detroit")
+    steel = Good("steel", 99)
+    grain = Good("grain", 99)
+    detroit.inventory = {steel: 2, grain: 2}
+    detroit.daily_consumption = {steel: 1, grain: 1}
+    detroit.supply_history = {steel: [5, 6], grain: [5, 6]}
+    goods = [steel, grain]
+
+    detroit.update_market_prices(goods)
+
+    assert detroit.market_prices == {steel: 119.05, grain: 119.05}
+
+def test_market_price_does_not_change_when_inventory_changes_during_day():
+    detroit = City("Detroit")
+    steel = Good("steel", 99)
+    grain = Good("grain", 99)
+    detroit.inventory = {steel: 2, grain: 2}
+    detroit.daily_consumption = {steel: 1, grain: 1}
+    detroit.supply_history = {steel: [5, 6], grain: [5, 6]}
+    goods = [steel, grain]
+
+    detroit.update_market_prices(goods)
+    prices_at_start_of_day = detroit.market_prices.copy()
+    detroit.inventory = {steel: 1, grain: 5}
+
+    assert detroit.market_prices == prices_at_start_of_day
+
+def test_update_market_prices_includes_consumed_good_with_zero_inventory():
+    detroit = City("Detroit")
+    steel = Good("steel", 99)
+    grain = Good("grain", 99)
+    detroit.inventory = {grain: 2}
+    detroit.daily_consumption = {steel: 1, grain: 1}
+    detroit.supply_history = {steel: [2, 1], grain: [5, 6]}
+    goods = [steel, grain]
+
+    detroit.update_market_prices(goods)
+
+    assert detroit.market_prices == {steel: 159.64, grain: 119.05}

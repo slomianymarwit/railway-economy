@@ -338,3 +338,59 @@ Historical market conditions can modify prices by approximately ±10%.
 Markets recovering from persistent shortages or surpluses retain some price pressure until their recent history improves.
 Fractional average supply scores produce proportionally adjusted multipliers.
 The historical multiplier remains a balance parameter and may be recalibrated using simulation data.
+
+
+## Local market price calculation
+
+### Decision
+The local market price of a good is calculated on demand from the good's base price and the city's current and historical supply conditions.
+The price is calculated as:
+local_price =
+    base_price
+    × current_supply_multiplier
+    × historical_supply_multiplier
+
+The final result is rounded to two decimal places.
+The rounded value is the official market price used by the game.
+
+### Reason
+Local price is fully derived from existing economic state, so storing it separately would duplicate information and create synchronization risk.
+Using the same rounded value for display and transactions ensures that the player always pays or receives exactly the price shown by the interface.
+
+### Consequences
+Local prices are recalculated whenever they are requested.
+UI, transactions, logs, and analytics should all use the same rounded local price.
+Hidden higher-precision prices are not used for transactions.
+Future price modifiers should be incorporated into the same calculation pipeline rather than creating separate competing price values.
+
+
+## Daily market prices and trade location
+
+### Decision
+Local market prices are calculated once at the beginning of each game day and stored as a daily price snapshot in each city.
+The city's market_prices contains the official prices used for all transactions during that day.
+Changes to inventory during the day do not immediately change the market price. Prices are recalculated at the beginning of the next day from the updated economic state and previous supply history.
+A train may buy or sell goods in a city only when it is physically located in that city.
+
+### Reason
+Keeping prices fixed during the day gives players stable information on which to base their decisions and prevents earlier transactions in the same turn from unexpectedly changing prices for later transactions.
+Requiring the train to be present in the city keeps trade tied to the physical railway simulation and prevents goods from being transferred remotely.
+
+### Consequences
+Beginning-of-day processing must calculate market prices before player transactions occur.
+Inventory may change during the day while the stored market price remains unchanged until the next daily update.
+Trade operations must verify that train.current_city is city.
+The future game engine should coordinate the daily market-price update for all cities and goods.
+
+
+## Single local market price for MVP
+
+### Decision
+For the MVP, each good has one daily local market price in a city.
+The same price is used when a railway company buys goods from the city and when it sells goods into the city.
+Local processors and railway companies are treated as competing participants in the same resource market. Railway purchases reduce locally available supply, while railway deliveries increase it.
+Separate buying and selling prices are postponed until a later stage.
+
+## Reason
+A single market price keeps the first trading model simple while still allowing railway activity to influence local supply and future prices.
+A bid/ask spread or separate processor and railway prices can be introduced later if the economic model needs more depth.

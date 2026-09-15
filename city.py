@@ -4,6 +4,7 @@ class City():
         self.inventory = {}
         self.daily_consumption = {}
         self.supply_history = {}
+        self.market_prices = {}
 
     def add_goods(self, good, quantity):
         if quantity <= 0:
@@ -59,8 +60,10 @@ class City():
     def get_supply_state(self, good):
         result = self.get_days_of_supply(good)
 
-        if result is None:
+        if result is None and good not in self.inventory:
             return None
+        if result is None:
+            return "heavy surplus"
         if result <= 1:
             return "extreme shortage"
         if result <= 3:
@@ -77,7 +80,7 @@ class City():
         result = self.get_supply_state(good)
 
         if result is None:
-            return None
+            return 1.00
         if result == "extreme shortage":
             return 1.50
         if result == "shortage":
@@ -88,7 +91,8 @@ class City():
             return 1.00
         if result == "surplus":
             return 0.85
-        return 0.7
+        if result == "heavy surplus":
+            return 0.7
 
     def record_supply_state(self, good):
         supply_scores = {
@@ -100,11 +104,9 @@ class City():
             "heavy surplus": 6,
         }
         result = self.get_supply_state(good)
-        
-        if good not in self.inventory and good not in self.daily_consumption:
+
+        if result is None:
             score = None
-        elif good in self.inventory and good not in self.daily_consumption:
-            score = 6
         else:
             score = supply_scores[result]
 
@@ -151,3 +153,16 @@ class City():
             return round(historical_supply_multiplier, 3)
         
         return 1
+
+    def get_local_price(self, good):
+        supply_multiplier = self.get_supply_multiplier(good)
+        historical_supply_multiplier = self.get_historical_supply_multiplier(good)
+
+        local_price = round(good.base_price * supply_multiplier * historical_supply_multiplier, 2)
+        return local_price
+
+    def update_market_prices(self, goods):
+        self.market_prices = {}
+        for good in goods:
+            price = self.get_local_price(good)
+            self.market_prices[good] = price
